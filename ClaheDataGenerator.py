@@ -26,8 +26,6 @@ class ClahedDataGenerator(Sequence):
              |---- B2.png
              ...
 
-    Generates batches with minority classes oversampled.
-
     Parameters:
 
     data_path: root of the data directories (e.g., DATA/TRAIN)
@@ -40,11 +38,10 @@ class ClahedDataGenerator(Sequence):
    
     """
     def __init__(self, data_path, classes, target_size, batch_size=32, 
-                 class_mode='categorical', random_state=42):
+                 random_state=42):
         self.data_path = data_path
         self.classes = classes
         self.target_size = target_size
-        self.class_mode = class_mode
 
         # We will generate parallel arrays for filenames and labels
         self.X, self.y = self.__inventory__()
@@ -70,7 +67,7 @@ class ClahedDataGenerator(Sequence):
             gs_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
             clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
             eq_img = clahe.apply(gs_img)
-            eq_img = cv2.cvtColor(eq_img, cv2.COLOR_GRAY2RGB)
+            #eq_img = cv2.cvtColor(eq_img, cv2.COLOR_GRAY2RGB)
             eq_img = eq_img.astype(np.float32) / 255.
             images.append(eq_img)
 
