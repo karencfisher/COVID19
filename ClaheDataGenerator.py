@@ -6,6 +6,7 @@ import cv2
 from tensorflow.keras.utils import Sequence
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.tensorflow import balanced_batch_generator
+from sklearn.utils import shuffle
 
 
 class ClahedDataGenerator(Sequence):
@@ -38,7 +39,8 @@ class ClahedDataGenerator(Sequence):
 
    
     """
-    def __init__(self, data_path, classes, target_size, batch_size=32, class_mode='categorical'):
+    def __init__(self, data_path, classes, target_size, batch_size=32, 
+                 class_mode='categorical', random_state=42):
         self.data_path = data_path
         self.classes = classes
         self.target_size = target_size
@@ -47,12 +49,15 @@ class ClahedDataGenerator(Sequence):
         # We will generate parallel arrays for filenames and labels
         self.X, self.y = self.__inventory__()
         self.batch_size = min(batch_size, self.X.shape[0])
+
+        # shuffle them
+        shuffle(self.X, self.y, random_state=random_state)
         
     def __len__(self):
         return self.batch_size
 
     def __getitem__(self, idx):
-        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_x = self.X[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
         images = []
@@ -66,7 +71,7 @@ class ClahedDataGenerator(Sequence):
             eq_img = eq_img.astype(np.float32)
             images.append(eq_img)
 
-        return np.stack(images, axis=0), np.array(y)
+        return np.stack(images, axis=0), np.array(batch_y)
 
     def __inventory__(self):
         '''
