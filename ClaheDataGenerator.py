@@ -11,7 +11,6 @@ from sklearn.utils import shuffle
 
 class ClahedDataGenerator(Sequence):
     """
-    ImageDataGenerator + RandomOversampling from directory
 
     Given a directory structure comtaining subdirectories for images divided into 
     classes, e.g.
@@ -32,9 +31,6 @@ class ClahedDataGenerator(Sequence):
     classes: list of classes (e.g., ['COVID', 'normal'])
     target_size: H/W target dimensions of images. Tuple. (e.g., (299, 299))
     batch_size: batch size
-    class_mode: class mode for Keras' flow_from_dataframe method. E.g.,
-                'binary', 'category', etc. See Keras documentation.
-
    
     """
     def __init__(self, data_path, classes, target_size, batch_size=32, 
@@ -67,7 +63,7 @@ class ClahedDataGenerator(Sequence):
             gs_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
             eq_img = clahe.apply(gs_img)
-            eq_img = eq_img.reshape(-1, 1)
+            eq_img = eq_img.reshape(self.target_size(0), self.target_size(1), 1)
             eq_img = eq_img.astype(np.float32) / 255.
             images.append(eq_img)
 
