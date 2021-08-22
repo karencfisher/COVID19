@@ -51,7 +51,7 @@ class ClahedDataGenerator(Sequence):
         self.batch_size = min(batch_size, len(self.X))
 
         # shuffle them
-        shuffle(self.X, self.y, random_state=random_state)
+        self.X, self.y = shuffle(self.X, self.y, random_state=random_state)
         
     def __len__(self):
         return self.batch_size
