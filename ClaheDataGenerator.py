@@ -61,6 +61,8 @@ class ClahedDataGenerator(Sequence):
         batch_x = self.X[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
+        y_labels = [batch_y.index(label for label in batch_y)]
+
         images = []
         for img_file in batch_x:
             img_path = os.path.join(self.data_path, img_file)
@@ -72,7 +74,7 @@ class ClahedDataGenerator(Sequence):
             eq_img = eq_img.astype(np.float32)
             images.append(eq_img)
 
-        return np.stack(images, axis=0), np.array(batch_y)
+        return np.stack(images, axis=0), np.array(y_labels)
 
     def __inventory__(self):
         '''
