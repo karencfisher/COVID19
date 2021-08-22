@@ -61,7 +61,7 @@ class ClahedDataGenerator(Sequence):
         batch_x = self.X[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-        y_labels = [batch_y.index(label) for label in batch_y)]
+        y_labels = [batch_y.index(label) for label in batch_y]
 
         images = []
         for img_file in batch_x:
