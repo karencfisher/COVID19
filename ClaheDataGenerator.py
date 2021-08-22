@@ -63,7 +63,7 @@ class ClahedDataGenerator(Sequence):
             gs_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
             eq_img = clahe.apply(gs_img)
-            eq_img = eq_img.reshape(self.target_size(0), self.target_size(1), 1)
+            eq_img = eq_img.reshape(self.target_size[0], self.target_size[1], 1)
             eq_img = eq_img.astype(np.float32) / 255.
             images.append(eq_img)
 
