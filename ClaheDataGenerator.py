@@ -48,7 +48,7 @@ class ClahedDataGenerator(Sequence):
 
         # We will generate parallel arrays for filenames and labels
         self.X, self.y = self.__inventory__()
-        self.batch_size = min(batch_size, self.X.shape[0])
+        self.batch_size = min(batch_size, len(self.X))
 
         # shuffle them
         shuffle(self.X, self.y, random_state=random_state)
