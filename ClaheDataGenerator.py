@@ -48,7 +48,7 @@ class ClahedDataGenerator(Sequence):
         self.X, self.y = shuffle(self.X, self.y, random_state=random_state)
         
     def __len__(self):
-        return self.batch_size
+        return int(np.ceil(len(self.X) / float(self.batch_size)))
 
     def __getitem__(self, idx):
         batch_x = self.X[idx * self.batch_size:(idx + 1) * self.batch_size]
