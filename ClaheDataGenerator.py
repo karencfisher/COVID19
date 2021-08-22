@@ -64,10 +64,10 @@ class ClahedDataGenerator(Sequence):
         for img_file in batch_x:
             img_path = os.path.join(self.data_path, img_file)
             img = cv2.imread(img_path)
-            gs_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+            gs_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
             eq_img = clahe.apply(gs_img)
-            #eq_img = cv2.cvtColor(eq_img, cv2.COLOR_GRAY2RGB)
+            eq_img = eq_img.reshape(-1, 1)
             eq_img = eq_img.astype(np.float32) / 255.
             images.append(eq_img)
 
