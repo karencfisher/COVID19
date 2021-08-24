@@ -7,7 +7,8 @@ from imblearn.under_sampling import RandomUnderSampler
 
 
 def balancedGenerator(data_path, classes, datagen, target_size, strategy='under',
-                        batch_size=32, class_mode='categorical', random_state=42):
+                        batch_size=32, class_mode='categorical', shuffle=True, 
+                        random_state=42):
     '''
     Resamples image data to either undersample non-minority classes or oversample
     non-majority classes. Returns a data generator. 
@@ -75,7 +76,9 @@ def balancedGenerator(data_path, classes, datagen, target_size, strategy='under'
                                       target_size=target_size,
                                       classes=classes,
                                       class_mode=class_mode,
-                                      batch_size=batch_size)
+                                      batch_size=batch_size,
+                                      shuffle=shuffle,
+                                      random_state=random_state)
     return gen
 
 
