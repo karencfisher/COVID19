@@ -62,6 +62,7 @@ def balancedGenerator(data_path, classes, datagen, target_size, strategy='under'
     y = np.array(y).reshape(-1, 1)
     X_res, y_res = resample.fit_resample(X, y)
     X_res = X_res.reshape(-1)
+    y_res = y_res.reshape(-1)
 
     # make into a dataframe
     df = pd.DataFrame(list(zip(X_res, y_res)), columns=['image', 'label'])
