@@ -66,7 +66,6 @@ def balancedGenerator(data_path, classes, datagen, target_size, strategy='under'
 
     # make into a dataframe
     df = pd.DataFrame(list(zip(X_res, y_res)), columns=['image', 'label'])
-    print(df)
 
     # instantiate generator. 
     gen = datagen.flow_from_dataframe(df, 
