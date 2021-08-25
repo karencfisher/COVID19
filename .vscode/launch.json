@@ -9,6 +9,10 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
+            "args": ["/src_path", "../COVID-19_Radiography_Dataset/OriginalData", 
+                     "/items", "COVID", "normal", 
+                     "/dest_path", "data2",
+                     "/splits", "0.8", "0.1", "0.1"],
             "console": "integratedTerminal"
         }
     ]
