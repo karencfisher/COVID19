@@ -3,6 +3,8 @@
 
 Classification of chest x-rays into COVID-19, Pneumonia, and healthy classes using a CNN.
 
+['examples of classified x-ray images'](https://github.com/karencfisher/COVID19/blob/main/examples.png?raw=true)
+
 ## Dataset
 https://www.kaggle.com/tawsifurrahman/covid19-radiography-database
 
