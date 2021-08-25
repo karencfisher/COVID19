@@ -1,5 +1,7 @@
 # COVID19
-COVID-19_Radiography_Dataset
+##COVID-19_Radiography_Dataset
+
+Classification of chest x-rays into COVID-19, Pneumonia, and healthy classes using a CNN.
 
 ## Dataset
 https://www.kaggle.com/tawsifurrahman/covid19-radiography-database
