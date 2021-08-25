@@ -6,15 +6,15 @@ from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 
 
-def balancedGenerator(data_path, classes, datagen, target_size, strategy=None,
+def getGenerator(data_path, classes, datagen, target_size, strategy=None,
                         batch_size=32, class_mode='categorical', shuffle=True, 
                         random_state=42):
     '''
-    Resamples image data to either undersample non-minority classes or oversample
-    non-majority classes. Returns a data generator. 
+    Sets up a data generator allows Keras image data generation to resample image 
+    files and/or create one-hot encoding of class labels. 
 
-    Given a directory structure comtaining subdirectories for images divided into 
-    classes, e.g.
+    E.g., Given a directory structure comtaining subdirectories for images divided into 
+    classes
 
     DATA/TRAIN
          ├───ClassA
@@ -25,6 +25,24 @@ def balancedGenerator(data_path, classes, datagen, target_size, strategy=None,
              |---- B1.png
              |---- B2.png
              ...
+
+    1) balance classes by undersampling non-majority classes or oversampling
+       non-minority classes, and/or
+    2) Generate labels as one-hot encoding (replacing list of classes with a
+       sparse matrix)
+
+    It is designed to integrate with the Keras ImageDataGenerator class so to 
+    take advantage of it's other functionality (e.g., data augmentation). Outwardly,
+    it appears to be flowinw from a directory, while internally it uses the 
+    flow_from_dataframe method of ImageDataGenerator.
+
+    Example implementation:
+        datagen = ImageDataGenerator(rescale=1./255.)
+        train_gen = getdGenerator(train_data, classes, datagen, (200, 200),
+                                  strategy='under')
+
+    to draw images from train_data, target image size of (200, 200), and undersampling
+    non-minority classes
 
     Parameters:
 
