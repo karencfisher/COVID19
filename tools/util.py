@@ -4,8 +4,8 @@ import random
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from keras import backend as K
-from keras.preprocessing import image
+from tensorflow.keras import backend as K
+from tensorflow import GradientTape
 from sklearn.metrics import roc_auc_score, roc_curve
 
 
@@ -50,9 +50,10 @@ def Weighted_Loss(y_true, epsilon=1e-7):
             y_pred = np.expand_dims(y_pred, axis=0)
 
         loss = 0
-        for i in range(len(y_true)):
-            pos_loss = -1 * K.mean(pos_w[i] * y_true[i] * K.log(y_pred[i] + epsilon))
-            neg_loss = -1 * K.mean(neg_w[i] * (1 - y_true[i]) * K.log(1 - y_pred[i] + epsilon))
+        for i in range(len(pos_w)):
+            pos_loss = -1 * K.mean(pos_w[i] * y_true[:,i] * K.log(y_pred[:,i] + epsilon))
+            neg_loss = -1 * K.mean(neg_w[i] * (1 - y_true[:,i]) * 
+                                        K.log(1 - y_pred[:,i] + epsilon))
             loss += pos_loss + neg_loss
         return loss
 
@@ -87,11 +88,9 @@ def model_metrics(y_true, y_pred, labels):
         y_true = np.expand_dims(y_true, axis=0)
     if len(y_pred.shape) < 2:
         y_pred = np.expand_dims(y_pred, axis=0)
-    if len(labels.shape) < 2:
-        y_pred = np.expand_dims(labels, axis=0)
 
     metrics = {}
-    for i in range(labels.shape[0]):
+    for i in range(y_true.shape[0]):
         # tp, fp, tn, fn
         tp = np.sum((y_true[i] == 1) & (y_pred[i] == 1))
         fp = np.sum((y_true[i] == 0) & (y_pred[i] == 1))
@@ -104,7 +103,7 @@ def model_metrics(y_true, y_pred, labels):
         specificity = tn / (tn + fp)
             
         # Calculate PPV according to Bayes Theorem
-        prev = np.sum(y_true) / len(y_true)
+        prev = np.sum(y_true[i]) / len(y_true[i])
         numerator = sensitivity * prev
         denominator = sensitivity * prev + (1 - specificity) * (1 - prev)
         ppv = numerator / denominator
@@ -138,10 +137,12 @@ def grad_cam(model, image, cls, layer_name):
     effects:
     None
     '''
-    y_c = model.output[0, cls]
+    if model.output.shape[1] == 1:
+        y_c = model.output[0, 0]
+    else:
+        y_c = model.output[0, cls]
     conv_output = model.get_layer(layer_name).output
     grads = K.gradients(y_c, conv_output)[0]
-
     gradient_function = K.function([model.input], [conv_output, grads])
 
     output, grads_val = gradient_function([image])
