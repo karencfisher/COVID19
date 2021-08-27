@@ -3,6 +3,8 @@
 
 Classification of chest x-rays into COVID-19, Pneumonia, and healthy classes using a CNN.
 
+### Examples for binary classification (COVID-19 vs. Healthy)
+
 !['examples of classified x-ray images'](https://github.com/karencfisher/COVID19/blob/main/examples.png?raw=true)
 
 ## Dataset
