@@ -137,12 +137,10 @@ def grad_cam(model, image, cls, layer_name):
     effects:
     None
     '''
-    if model.output.shape[1] == 1:
-        y_c = model.output[0, 0]
-    else:
-        y_c = model.output[0, cls]
+    y_c = model.output[0, cls]
     conv_output = model.get_layer(layer_name).output
     grads = K.gradients(y_c, conv_output)[0]
+
     gradient_function = K.function([model.input], [conv_output, grads])
 
     output, grads_val = gradient_function([image])
@@ -151,9 +149,9 @@ def grad_cam(model, image, cls, layer_name):
     weights = np.mean(grads_val, axis=(0, 1))
     cam = np.dot(output, weights)
 
-    # Process CAM (enlarge to match image)
-    image_dims = image.shape
-    cam = cv2.resize(cam, image_dims, cv2.INTER_LINEAR)
+    # Process CAM
+    img_dims = image.shape
+    cam = cv2.resize(cam, img_dims, cv2.INTER_LINEAR)
     cam = np.maximum(cam, 0)
     cam = cam / cam.max()
     return cam
