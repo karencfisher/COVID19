@@ -11,7 +11,7 @@ from tensorflow import cast, reduce_mean
 from sklearn.metrics import roc_auc_score, roc_curve
 
 
-def Weighted_Loss(y_true, epsilon=1e-7):
+def Weighted_Loss(classes, epsilon=1e-7):
     '''
     Weighted_Loss function -- genrates a loss function
 
@@ -26,11 +26,12 @@ def Weighted_Loss(y_true, epsilon=1e-7):
     effects:
     None
     '''
-    if len(y_true.shape) < 2:
-        y_true = np.expand_dims(y_true, axis=0)
-
-    neg_w = np.sum(y_true, axis=0) / y_true.shape[0]
+    neg_w = np.sum(classes, axis=0) / classes.shape[0]
     pos_w = 1 - neg_w
+
+    if len(classes.shape) < 2:
+        neg_w = np.array([neg_w])
+        pos_w = np.array([pos_w])
 
     def weighted_loss(y_true, y_pred):
         '''
@@ -45,13 +46,6 @@ def Weighted_Loss(y_true, epsilon=1e-7):
         returns:
         weighted_loss (as scalar value)
         '''
-        print(y_true.shape, y_pred.shape)
-        assert y_true.shape == y_pred.shape, "mismatched shapes y_true and y_pred"
-        if len(y_true.shape) < 2:
-            y_true = np.expand_dims(y_true, axis=0)
-        if len(y_pred.shape) < 2:
-            y_pred = np.expand_dims(y_pred, axis=0)
-
         loss = 0
         for i in range(len(pos_w)):
             pos_loss = -1 * K.mean(pos_w[i] * y_true[:,i] * K.log(y_pred[:,i] + epsilon))

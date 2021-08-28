@@ -25,7 +25,7 @@ class smokeTest(unittest.TestCase):
         self.assertAlmostEqual(round(L1, 4), -0.4956)
 
     def test_weighted_loss2(self):
-        y_true = K.constant(np.array([1, 1, 1, 0, 0, 0]))
+        y_true = K.constant(np.array([[1], [1], [1], [0], [0], [0]]))
 
         y_pred_1 = K.constant(0.7*np.ones(y_true.shape))
         y_pred_2 = K.constant(0.3*np.ones(y_true.shape))
