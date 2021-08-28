@@ -106,7 +106,7 @@ def model_metrics(y_true, y_pred, labels):
         ppv = numerator / denominator
 
         #claculate ROC and AUC
-        tpr, fpr, _ = roc_curve(y_true[i], y_pred[i])
+        fpr, tpr, _ = roc_curve(y_true[i], y_pred[i])
         auc_score = roc_auc_score(y_true[i], y_pred[i])
 
         metrics[labels[i]] = {'accuracy': accuracy,
