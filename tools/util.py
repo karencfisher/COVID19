@@ -158,6 +158,6 @@ def grad_cam(model, image, cls, layer_name, test=False):
     cam = np.maximum(cam, 0)
     heatmap = (cam - cam.min()) / (cam.max() - cam.min())
     cam = cv2.applyColorMap(np.uint8(255*heatmap), cv2.COLORMAP_JET)
-    output_image = cv2.addWeighted(cv2.cvtColor(image.astype('uint8'), 
-                                   cv2.COLOR_RGB2BGR), 0.5, cam, 1, 0)
-    return output_image
+    # output_image = cv2.addWeighted(cv2.cvtColor(image.astype('uint8'), 
+    #                                cv2.COLOR_RGB2BGR), 0.5, cam, 1, 0)
+    return cam
