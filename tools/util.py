@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras import backend as K
 from tensorflow import GradientTape
+from tensorflow.keras.models import Model
+from tensorflow import cast, reduce_mean
 from sklearn.metrics import roc_auc_score, roc_curve
 
 
@@ -121,7 +123,7 @@ def model_metrics(y_true, y_pred, labels):
     return metrics
 
 
-def grad_cam(model, image, cls, layer_name):
+def grad_cam(model, image, cls, layer_name, test=False):
     '''
     GradCAM method for visualizing input saliency.
 
@@ -137,21 +139,25 @@ def grad_cam(model, image, cls, layer_name):
     effects:
     None
     '''
-    y_c = model.output[0, cls]
-    conv_output = model.get_layer(layer_name).output
-    grads = K.gradients(y_c, conv_output)[0]
+    grad_model = Model([model.inputs], 
+                       [model.get_layer(layer_name).output, model.output])
 
-    gradient_function = K.function([model.input], [conv_output, grads])
+    with GradientTape() as tape:
+        conv_outputs, predictions = grad_model([image])
+        loss = predictions[:, cls]
 
-    output, grads_val = gradient_function([image])
-    output, grads_val = output[0, :], grads_val[0, :, :, :]
+    output = conv_outputs[0]
+    grads = tape.gradient(loss, conv_outputs)[0]
 
-    weights = np.mean(grads_val, axis=(0, 1))
-    cam = np.dot(output, weights)
+    guided_grads = cast(output > 0, 'float32') * cast(grads > 0, 'float32') * grads
+    weights = reduce_mean(guided_grads, axis=(0, 1))
 
-    # Process CAM
-    img_dims = image.shape
-    cam = cv2.resize(cam, img_dims, cv2.INTER_LINEAR)
+    cam = np.ones(output.shape[0: 2], dtype = np.float32)
+
+    for i, w in enumerate(weights):
+        cam += w * output[:, :, i]
+
+    cam = cv2.resize(cam.numpy(), (image.shape[1], image.shape[2]))
     cam = np.maximum(cam, 0)
-    cam = cam / cam.max()
+    cam = cv2.applyColorMap(np.uint8(cam), cv2.COLORMAP_JET)
     return cam
