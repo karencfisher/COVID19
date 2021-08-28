@@ -158,24 +158,3 @@ def grad_cam(model, image, cls, layer_name, test=False):
     cam = np.maximum(cam, 0)
     cam = cv2.applyColorMap(np.uint8(cam), cv2.COLORMAP_JET)
     return cam
-
-
-def grad_cam2(input_model, image, cls, layer_name, H=320, W=320):
-    """GradCAM method for visualizing input saliency."""
-    y_c = input_model.output[0, cls]
-    conv_output = input_model.get_layer(layer_name).output
-    grads = K.gradients(y_c, conv_output)[0]
-
-    gradient_function = K.function([input_model.input], [conv_output, grads])
-
-    output, grads_val = gradient_function([image])
-    output, grads_val = output[0, :], grads_val[0, :, :, :]
-
-    weights = np.mean(grads_val, axis=(0, 1))
-    cam = np.dot(output, weights)
-
-    # Process CAM
-    cam = cv2.resize(cam, (W, H), cv2.INTER_LINEAR)
-    cam = np.maximum(cam, 0)
-    cam = cam / cam.max()
-    return cam
