@@ -45,6 +45,7 @@ def Weighted_Loss(y_true, epsilon=1e-7):
         returns:
         weighted_loss (as scalar value)
         '''
+        print(y_true.shape, y_pred.shape)
         assert y_true.shape == y_pred.shape, "mismatched shapes y_true and y_pred"
         if len(y_true.shape) < 2:
             y_true = np.expand_dims(y_true, axis=0)
@@ -138,6 +139,8 @@ def grad_cam(model, image, cls, layer_name, test=False):
 
     effects:
     None
+
+    Thank you to https://gist.github.com/RaphaelMeudec/e9a805fa82880876f8d89766f0690b54
     '''
     grad_model = Model([model.inputs], 
                        [model.get_layer(layer_name).output, model.output])
