@@ -2,6 +2,8 @@ import unittest
 import numpy as np
 import os
 from tensorflow.keras import backend as K
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 
 import util
@@ -41,11 +43,13 @@ class smokeTest(unittest.TestCase):
         y_pred = np.array([1, 0, 1, 1, 0, 0, 1, 0, 1, 1])
         labels = np.array(['sick'])
 
-        scores = util.model_metrics(y_true, y_pred, labels)['sick']
-        self.assertAlmostEqual(round(scores['accuracy'], 4), .7)
-        self.assertAlmostEqual(round(scores['sensitivity'], 4), .7143)
-        self.assertAlmostEqual(round(scores['specificity'], 4), .6667)
-        self.assertAlmostEqual(round(scores['ppv'], 4), .8333)
+        df, _ = util.model_metrics(y_true, y_pred, labels)
+        scores = df.loc['sick']
+
+        self.assertAlmostEqual(round(scores['Accuracy'], 4), .7)
+        self.assertAlmostEqual(round(scores['Sensitivity'], 4), .7143)
+        self.assertAlmostEqual(round(scores['Specificity'], 4), .6667)
+        self.assertAlmostEqual(round(scores['PPV'], 4), .8333)
 
     def test_Model_metrics2(self):
         y_true = np.array([[1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
@@ -54,13 +58,26 @@ class smokeTest(unittest.TestCase):
                            [1, 0, 0, 1, 0, 0, 1, 0, 1, 1]])
         labels = np.array(['sick', 'well'])
 
-        scores = util.model_metrics(y_true, y_pred, labels)
-        scores1 = scores['sick']
-        self.assertAlmostEqual(round(scores1['ppv'], 4), .8333)
-        scores2 = scores['well']
-        self.assertAlmostEqual(round(scores2['ppv'], 4), .8000)
+        df, _ = util.model_metrics(y_true, y_pred, labels)
+        scores1 = df.loc['sick']
+        self.assertAlmostEqual(round(scores1['PPV'], 4), .8333)
+        scores2 = df.loc['well']
+        self.assertAlmostEqual(round(scores2['PPV'], 4), .8000)
 
-    
+    def test_cam(self):
+        cwd = os.getcwd()
+        model_path = os.path.join(cwd, 'tools', 'test_model.h5')
+        model = load_model(model_path, compile=False)
+
+        img_path = os.path.join(cwd, 'tools', 'test_img.png')
+        img = load_img(img_path)
+        img = img_to_array(img)
+        img = img / 255.
+        img = np.expand_dims(img, axis=0)
+        cam = util.grad_cam(model, img, 0, 'conv2d_4', test=True)
+        self.assertEqual(cam.shape, img[0].shape)
+
+
 if __name__ == '__main__':
     print('testing')
     unittest.main()  

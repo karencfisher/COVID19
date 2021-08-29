@@ -4,6 +4,8 @@ import random
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+
 from tensorflow.keras import backend as K
 from tensorflow import GradientTape
 from tensorflow.keras.models import Model
@@ -86,8 +88,9 @@ def model_metrics(y_true, y_pred, labels):
     if len(y_pred.shape) < 2:
         y_pred = np.expand_dims(y_pred, axis=0)
 
-    metrics = {}
-    for i in range(y_true.shape[0]):
+    metrics = []
+    roc_curves = []
+    for i in range(len(labels)):
         # tp, fp, tn, fn
         tp = np.sum((y_true[i] == 1) & (y_pred[i] == 1))
         fp = np.sum((y_true[i] == 0) & (y_pred[i] == 1))
@@ -109,13 +112,14 @@ def model_metrics(y_true, y_pred, labels):
         fpr, tpr, _ = roc_curve(y_true[i], y_pred[i])
         auc_score = roc_auc_score(y_true[i], y_pred[i])
 
-        metrics[labels[i]] = {'accuracy': accuracy,
-                              'sensitivity': sensitivity,
-                              'specificity': specificity,
-                              'ppv': ppv,
-                              'auc_score': auc_score,
-                              'roc_curve': {'tpr': tpr, 'fpr': fpr}}
-    return metrics
+        metrics.append([accuracy, sensitivity, specificity, ppv, auc_score])
+        roc_curves.append([fpr, tpr])
+
+    df = pd.DataFrame(metrics,
+                      columns=['Accuracy', 'Sensitivity', 'Specificity', 
+                               'PPV', 'Auc_score'],
+                      index=labels)             
+    return df, roc_curves
 
 
 def grad_cam(model, image, cls, layer_name, test=False):
