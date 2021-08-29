@@ -82,20 +82,14 @@ def model_metrics(y_true, y_pred, labels):
     effects:
     None  
     '''
-    assert y_true.shape == y_pred.shape, "mismatched shapes y_true and y_pred"
-    if len(y_true.shape) < 2:
-        y_true = np.expand_dims(y_true, axis=0)
-    if len(y_pred.shape) < 2:
-        y_pred = np.expand_dims(y_pred, axis=0)
-
     metrics = []
     roc_curves = []
     for i in range(len(labels)):
         # tp, fp, tn, fn
-        tp = np.sum((y_true[i] == 1) & (y_pred[i] == 1))
-        fp = np.sum((y_true[i] == 0) & (y_pred[i] == 1))
-        tn = np.sum((y_true[i] == 0) & (y_pred[i] == 0))
-        fn = np.sum((y_true[i] == 1) & (y_pred[i] == 0))
+        tp = np.sum((y_true[:,i] == 1) & (y_pred[:,i] == 1))
+        fp = np.sum((y_true[:,i] == 0) & (y_pred[:,i] == 1))
+        tn = np.sum((y_true[:,i] == 0) & (y_pred[:,i] == 0))
+        fn = np.sum((y_true[:,i] == 1) & (y_pred[:,i] == 0))
 
         # sensitivity, specificity
         accuracy = (tp + tn) / (tp + tn + fp + fn)
@@ -103,14 +97,14 @@ def model_metrics(y_true, y_pred, labels):
         specificity = tn / (tn + fp)
             
         # Calculate PPV according to Bayes Theorem
-        prev = np.sum(y_true[i]) / len(y_true[i])
+        prev = np.sum(y_true[:,i]) / len(y_true[:,i])
         numerator = sensitivity * prev
         denominator = sensitivity * prev + (1 - specificity) * (1 - prev)
         ppv = numerator / denominator
 
         #claculate ROC and AUC
-        fpr, tpr, _ = roc_curve(y_true[i], y_pred[i])
-        auc_score = roc_auc_score(y_true[i], y_pred[i])
+        fpr, tpr, _ = roc_curve(y_true[:,i], y_pred[:,i])
+        auc_score = roc_auc_score(y_true[:,i], y_pred[:,i])
 
         metrics.append([accuracy, sensitivity, specificity, ppv, auc_score])
         roc_curves.append([fpr, tpr])

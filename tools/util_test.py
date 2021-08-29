@@ -40,7 +40,9 @@ class smokeTest(unittest.TestCase):
 
     def test_model_metrics(self):
         y_true = np.array([1, 1, 1, 0, 0, 0, 1, 1, 1, 1])
+        y_true = np.expand_dims(y_true, axis=1)
         y_pred = np.array([1, 0, 1, 1, 0, 0, 1, 0, 1, 1])
+        y_pred = np.expand_dims(y_pred, axis=1)
         labels = np.array(['sick'])
 
         df, _ = util.model_metrics(y_true, y_pred, labels)
@@ -53,9 +55,9 @@ class smokeTest(unittest.TestCase):
 
     def test_Model_metrics2(self):
         y_true = np.array([[1, 1, 1, 0, 0, 0, 1, 1, 1, 1],
-                           [1, 1, 1, 0, 0, 0, 1, 1, 1, 1]])
+                           [1, 1, 1, 0, 0, 0, 1, 1, 1, 1]]).T
         y_pred = np.array([[1, 0, 1, 1, 0, 0, 1, 0, 1, 1],
-                           [1, 0, 0, 1, 0, 0, 1, 0, 1, 1]])
+                           [1, 0, 0, 1, 0, 0, 1, 0, 1, 1]]).T
         labels = np.array(['sick', 'well'])
 
         df, _ = util.model_metrics(y_true, y_pred, labels)
