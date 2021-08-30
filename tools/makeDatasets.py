@@ -71,40 +71,48 @@ def make_files(src, item, dest, files):
     # for each of train, validate, and test portions
     count = 0
     total = sum([len(file_list) for file_list in files])
-    for i, part in enumerate(parts):
+    for i, part in enumerate(parts):  
         part_dir = os.path.join(dest_dir, part)
         src_dir = os.path.join(src, item)
+
         # retrieve files, process and save in the destination
         for file_name in files[i]:
-            if enhancement is not None:
-                process_image(src_dir, part_dir, file_name, enhancement)
+            in_path = os.path.join(src_dir, file_name)
+            out_path = os.path.join(part_dir, file_name)
+            
+            # If no enhancement, just copy file. Otherwise preprocess
+            # image
+            if enhancement is None:
+                shutil.copy(in_path, out_path)
+            else:
+                img = cv2.imread(in_path)          
+                processed_img = process_image(img, enhancement)
+                cv2.imwrite(out_path, processed_img)
+
+            # Display status
             count += 1 
             percent = int(count / total * 100)
             print(f'{percent}% processed', end='\r')  
         print('\n')         
         
-def process_image(src_dir, part_dir, file_name, enhancement):
+def process_image(img, enhancement):
     '''
     Process and store an individual image file
 
     parameters:
-    src_dir: source directory (e.g., src_dir/classA)
-    part_dir: destination directory for processed files
-              (e.g., dest_dir/classA/train)
-    file_name: image file name
+    img: unprocessed image
+    enhancement: which enhancement
+                 'clahe' = Contrast Limited Adaptive Histogram
+                           Equalization
+                 'he' = Historgram Equalization
+                 'um' = Unsharp Mask
 
     returns:
-    None
+    processed image
 
     effects:
-    stores processed image to destination path
+    None
     '''
-    in_path = os.path.join(src_dir, file_name)
-    out_path = os.path.join(part_dir, file_name)
-
-    #Read original image file
-    img = cv2.imread(in_path)
-
     # convert to gray scale
     img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -112,11 +120,15 @@ def process_image(src_dir, part_dir, file_name, enhancement):
         # apply adaptive histogram equalization to enhance contrast
         cahle = cv2.createCLAHE()
         img = cahle.apply(img_gs)
+    elif enhancement.lower() == 'he':
+        img = cv2.equalizeHist(img)
+    elif enhancement.lower() == 'um':
+        gaussian_3 = cv2.GaussianBlur(img, (0, 0), 2.0)
+        img = cv2.addWeighted(img, 1.5, gaussian_3, -0.5, 0, img)
     else:
         raise ValueError('Invalid or unsupported enhancement method')
 
-    # write enhanced file to destination
-    cv2.imwrite(out_path, img)   
+    return img 
     
 
 if __name__ == '__main__':
