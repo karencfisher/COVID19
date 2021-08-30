@@ -1,7 +1,7 @@
 import os
 import shutil
 import sys
-#import cv2
+import cv2
 
 from tools import parseArgs
 
@@ -76,13 +76,14 @@ def make_files(src, item, dest, files):
         src_dir = os.path.join(src, item)
         # retrieve files, process and save in the destination
         for file_name in files[i]:
-            process_image(src_dir, part_dir, file_name)
+            if enhancement is not None:
+                process_image(src_dir, part_dir, file_name, enhancement)
             count += 1 
             percent = int(count / total * 100)
             print(f'{percent}% processed', end='\r')  
         print('\n')         
         
-def process_image(src_dir, part_dir, file_name):
+def process_image(src_dir, part_dir, file_name, enhancement):
     '''
     Process and store an individual image file
 
@@ -107,12 +108,15 @@ def process_image(src_dir, part_dir, file_name):
     # convert to gray scale
     img_gs = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # apply adaptive histogram equalization to enhance contrast
-    cahle = cv2.createCLAHE()
-    img_clahe = cahle.apply(img_gs)
+    if enhancement.lower() == 'clahe':
+        # apply adaptive histogram equalization to enhance contrast
+        cahle = cv2.createCLAHE()
+        img = cahle.apply(img_gs)
+    else:
+        raise ValueError('Invalid or unsupported enhancement method')
 
     # write enhanced file to destination
-    cv2.imwrite(out_path, img_clahe)   
+    cv2.imwrite(out_path, img)   
     
 
 if __name__ == '__main__':
@@ -131,6 +135,7 @@ if __name__ == '__main__':
     if not isinstance(items, list):
         items = [items]
     splits = [float(split) for split in params['splits']]
+    enhancement = params.get('enhance', None)
 
     # remove destination if already exists
     if os.path.isdir(dest):
@@ -141,7 +146,7 @@ if __name__ == '__main__':
         print(f'Inventory {item} files')
         files = split(src, item, splits)
         print(f'Process {item} files')
-        make_files(src, item, dest, files)
+        make_files(src, item, dest, files, enhancement)
         print('\n')
                           
     
