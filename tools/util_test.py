@@ -5,7 +5,6 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
-
 import util
 
 
@@ -37,6 +36,26 @@ class smokeTest(unittest.TestCase):
         L2 = L(y_true, y_pred_2).numpy()
 
         self.assertEqual(L1, L2)
+
+    def test_dice_loss(self):
+        y_true = np.expand_dims(np.eye(2), 0)
+        y_pred = np.expand_dims(np.array([[1.0, 1.0], [0.0, 0.0]]), 0)
+        L = util.get_dice_loss(epsilon=1)
+        l = L(y_true, y_pred).numpy()
+        self.assertEqual(l, 0.4)
+
+    def test_dice_loss2(self):
+        y_true = np.zeros((20, 20))
+        y_true[5:-5, 5:-5] = 1
+        y_true = np.expand_dims(y_true, axis=0)
+
+        y_pred = np.zeros((20, 20))
+        y_pred[6:-4, 5:-5] = 1
+        y_pred = np.expand_dims(y_pred, axis=0)
+
+        L=util.get_dice_loss(epsilon=1)
+        l = L(y_true, y_pred).numpy()
+        self.assertAlmostEqual(l, 0.09950248756218905)
 
     def test_model_metrics(self):
         y_true = np.array([1, 1, 1, 0, 0, 0, 1, 1, 1, 1])

@@ -20,7 +20,7 @@ def Weighted_Loss(classes, epsilon=1e-7):
     parameters:
     y_true: Ground truth for all classes, as an Numpy Array. Either one or two 
             dimensional array.
-    epsilon: tiny value to prevent division by zer exceptions. Default 1e-7.
+    epsilon: smoothing value to prevent division by 0 exceptions. Default 1e-7.
 
     returns:
     Loss function
@@ -57,6 +57,26 @@ def Weighted_Loss(classes, epsilon=1e-7):
         return loss
 
     return weighted_loss
+
+
+def get_dice_loss(epsilon=1e-7):
+    '''
+    Get dice loss function
+
+    parameter:
+    epsilon: smoothing, default 1e-7
+
+    returns:
+    dice loss function
+    '''
+    def dice_loss(y_true, y_pred):
+        dice_numerator = 2 * K.sum(y_true * y_pred, axis=(1, 2)) + epsilon
+        dice_denominator = (K.sum(K.pow(y_true, 2), axis=(1, 2)) + 
+                            K.sum(K.pow(y_pred, 2), axis=(1, 2)) + epsilon)
+        loss = 1 - K.mean(dice_numerator / dice_denominator)
+
+        return loss
+    return dice_loss
 
 
 def model_metrics(y_true, y_pred, labels):
