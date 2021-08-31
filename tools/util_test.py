@@ -38,20 +38,20 @@ class smokeTest(unittest.TestCase):
         self.assertEqual(L1, L2)
 
     def test_dice_loss(self):
-        y_true = np.expand_dims(np.eye(2), 0)
-        y_pred = np.expand_dims(np.array([[1.0, 1.0], [0.0, 0.0]]), 0)
+        y_true = K.constant(np.expand_dims(np.eye(2), 0))
+        y_pred = K.constant(np.expand_dims(np.array([[1.0, 1.0], [0.0, 0.0]]), 0))
         L = util.get_dice_loss(epsilon=1)
         l = L(y_true, y_pred).numpy()
-        self.assertEqual(l, 0.4)
+        self.assertAlmostEqual(l, 0.4)
 
     def test_dice_loss2(self):
         y_true = np.zeros((20, 20))
         y_true[5:-5, 5:-5] = 1
-        y_true = np.expand_dims(y_true, axis=0)
+        y_true = K.constant(np.expand_dims(y_true, axis=0))
 
         y_pred = np.zeros((20, 20))
         y_pred[6:-4, 5:-5] = 1
-        y_pred = np.expand_dims(y_pred, axis=0)
+        y_pred = K.constant(np.expand_dims(y_pred, axis=0))
 
         L=util.get_dice_loss(epsilon=1)
         l = L(y_true, y_pred).numpy()
@@ -84,6 +84,20 @@ class smokeTest(unittest.TestCase):
         self.assertAlmostEqual(round(scores1['PPV'], 4), .8333)
         scores2 = df.loc['well']
         self.assertAlmostEqual(round(scores2['PPV'], 4), .8000)
+
+    
+    def test_dice_coeff(self):
+        y_true = np.zeros((20, 20))
+        y_true[5:-5, 5:-5] = 1
+        y_true = np.expand_dims(y_true, axis=0)
+
+        y_pred = np.zeros((20, 20))
+        y_pred[6:-4, 5:-5] = 1
+        y_pred = np.expand_dims(y_pred, axis=0)
+
+        dc = util.dice_coeff(y_true, y_pred, epsilon=1)
+        self.assertAlmostEqual(dc, 0.9004975)
+
 
     def test_cam(self):
         cwd = os.getcwd()

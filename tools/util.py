@@ -58,7 +58,6 @@ def Weighted_Loss(classes, epsilon=1e-7):
 
     return weighted_loss
 
-
 def get_dice_loss(epsilon=1e-7):
     '''
     Get dice loss function
@@ -73,7 +72,8 @@ def get_dice_loss(epsilon=1e-7):
         dice_numerator = 2 * K.sum(y_true * y_pred, axis=(1, 2)) + epsilon
         dice_denominator = (K.sum(K.pow(y_true, 2), axis=(1, 2)) + 
                             K.sum(K.pow(y_pred, 2), axis=(1, 2)) + epsilon)
-        loss = 1 - K.mean(dice_numerator / dice_denominator)
+        loss = 1 - dice_numerator / dice_denominator
+        loss = K.reshape(loss, ())
 
         return loss
     return dice_loss
@@ -134,6 +134,14 @@ def model_metrics(y_true, y_pred, labels):
                                'PPV', 'Auc_score'],
                       index=labels)             
     return df, roc_curves
+
+
+def dice_coeff(y_true, y_pred, epsilon=1e-7):
+    dice_numerator = 2 * np.sum(y_true * y_pred, axis=(1, 2)) + epsilon
+    dice_denominator = (np.sum(y_true, axis=(1, 2)) + 
+                        np.sum(y_pred, axis=(1, 2)) + epsilon)
+    coeff = dice_numerator / dice_denominator
+    return coeff[0]
 
 
 def grad_cam(model, image, cls, layer_name, test=False):
