@@ -72,8 +72,7 @@ def get_dice_loss(epsilon=1e-7):
         dice_numerator = 2 * K.sum(y_true * y_pred, axis=(1, 2)) + epsilon
         dice_denominator = (K.sum(K.pow(y_true, 2), axis=(1, 2)) + 
                             K.sum(K.pow(y_pred, 2), axis=(1, 2)) + epsilon)
-        loss = 1 - dice_numerator / dice_denominator
-        loss = K.reshape(loss, ())
+        loss = K.mean(1 - dice_numerator / dice_denominator)
 
         return loss
     return dice_loss
@@ -140,8 +139,8 @@ def dice_coeff(y_true, y_pred, epsilon=1e-7):
     dice_numerator = 2 * np.sum(y_true * y_pred, axis=(1, 2)) + epsilon
     dice_denominator = (np.sum(y_true, axis=(1, 2)) + 
                         np.sum(y_pred, axis=(1, 2)) + epsilon)
-    coeff = dice_numerator / dice_denominator
-    return coeff[0]
+    coeff = np.mean(dice_numerator / dice_denominator)
+    return coeff
 
 
 def grad_cam(model, image, cls, layer_name, test=False):

@@ -45,12 +45,12 @@ class smokeTest(unittest.TestCase):
         self.assertAlmostEqual(l, 0.4)
 
     def test_dice_loss2(self):
-        y_true = np.zeros((20, 20))
-        y_true[5:-5, 5:-5] = 1
+        y_true = np.zeros((20, 20, 1))
+        y_true[5:-5, 5:-5, :] = 1
         y_true = K.constant(np.expand_dims(y_true, axis=0))
 
-        y_pred = np.zeros((20, 20))
-        y_pred[6:-4, 5:-5] = 1
+        y_pred = np.zeros((20, 20, 1))
+        y_pred[6:-4, 5:-5, :] = 1
         y_pred = K.constant(np.expand_dims(y_pred, axis=0))
 
         L=util.get_dice_loss(epsilon=1)
@@ -87,12 +87,12 @@ class smokeTest(unittest.TestCase):
 
     
     def test_dice_coeff(self):
-        y_true = np.zeros((20, 20))
-        y_true[5:-5, 5:-5] = 1
+        y_true = np.zeros((20, 20, 1))
+        y_true[5:-5, 5:-5, :] = 1
         y_true = np.expand_dims(y_true, axis=0)
 
-        y_pred = np.zeros((20, 20))
-        y_pred[6:-4, 5:-5] = 1
+        y_pred = np.zeros((20, 20, 1))
+        y_pred[6:-4, 5:-5, :] = 1
         y_pred = np.expand_dims(y_pred, axis=0)
 
         dc = util.dice_coeff(y_true, y_pred, epsilon=1)
