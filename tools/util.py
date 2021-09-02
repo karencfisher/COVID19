@@ -72,7 +72,7 @@ def get_dice_loss(epsilon=1e-7):
         dice_numerator = 2 * K.sum(y_true * y_pred, axis=(1, 2)) + epsilon
         dice_denominator = (K.sum(K.pow(y_true, 2), axis=(1, 2)) + 
                             K.sum(K.pow(y_pred, 2), axis=(1, 2)) + epsilon)
-        loss = K.mean(1 - dice_numerator / dice_denominator)
+        loss = 1 - K.mean(dice_numerator / dice_denominator)
 
         return loss
     return dice_loss
