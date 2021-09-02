@@ -136,10 +136,10 @@ def model_metrics(y_true, y_pred, labels):
 
 
 def dice_coeff(y_true, y_pred, epsilon=1e-7):
-    dice_numerator = 2 * np.sum(y_true * y_pred, axis=(1, 2)) + epsilon
-    dice_denominator = (np.sum(y_true, axis=(1, 2)) + 
-                        np.sum(y_pred, axis=(1, 2)) + epsilon)
-    coeff = np.mean(dice_numerator / dice_denominator)
+    dice_numerator = 2 * K.sum(y_true * y_pred, axis=(1, 2)) + epsilon
+    dice_denominator = (K.sum(y_true, axis=(1, 2)) + 
+                        K.sum(y_pred, axis=(1, 2)) + epsilon)
+    coeff = K.mean(dice_numerator / dice_denominator)
     return coeff
 
 

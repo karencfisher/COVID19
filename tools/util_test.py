@@ -95,7 +95,7 @@ class smokeTest(unittest.TestCase):
         y_pred[6:-4, 5:-5, :] = 1
         y_pred = np.expand_dims(y_pred, axis=0)
 
-        dc = util.dice_coeff(y_true, y_pred, epsilon=1)
+        dc = util.dice_coeff(y_true, y_pred, epsilon=1).numpy()
         self.assertAlmostEqual(dc, 0.9004975)
 
 
