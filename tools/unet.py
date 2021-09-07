@@ -3,6 +3,7 @@ from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Input
 from tensorflow.keras.layers import Conv2DTranspose, Concatenate, Activation, Layer
 from tensorflow.keras import backend as K
 from tensorflow.keras.preprocessing.image import smart_resize
+import tensorflow as tf
 
 
 ''' Model building functions '''
@@ -98,36 +99,36 @@ class MergeZoom(Layer):
 
         x = K.sum(mask, axis=2)
         y = K.sum(mask, axis=1)
-        print(x.shape, y.shape)
 
-        xl = 0
-        xr = 0
-        i = 0
-        while K.equal(xl, 0):
-            if K.greater(x[i], 0):
-                xl = i - 1
-            i += 1
-    
-        i = len(x) - 1
-        while K.equal(xr, 0):
-            if K.greater(x[i], 0):
-                xr = i + 1
-            i -= 1
-    
-        yl = 0
-        yr = 0
-        i = 0
-        while K.equal(yl, 0):
-            if K.greater(y[i], 0):
-                yl = i - 1
-            i += 1
+        crops = []
+        for j in tf.range(self.batch_size):
+            xl = 0
+            xr = 0
+            i = 0
+            while K.equal(xl, 0):
+                print(x[j,i,0])
+                xl = tf.cond(x[j,i,0] > 0, lambda: i - 1, lambda: xl)
+                i += 1
+        
+            i = len(x) - 1
+            while K.equal(xr, 0):
+                xr = tf.cond(x[j,i,0] > 0, lambda: i + 1, lambda: xr)
+                i -= 1
+        
+            yl = 0
+            yr = 0
+            i = 0
+            while K.equal(yl, 0):
+                yl = tf.cond(y[j,i,0] > 0, lambda: i - 1, lambda: yl)
+                i += 1
 
-        i = len(y) - 1
-        while K.equal(yr, 0):
-            if K.greater(y[i], 0):
-                yr = i + 1
-            i -= 1
+            i = len(y) - 1
+            while K.equal(yr, 0):
+                yr = tf.cond(y[j,i,0] > 0, lambda: i + 1, lambda: yr)
+                i -= 1
 
-        cropped = mask[xl:xr, yl:yr] * image[xl:xr, yl:yr]
-        cropped = smart_resize(cropped, (image.shape[1], image.shape[2]))
-        return cropped
+            cropped = mask[j, xl:xr, yl:yr, :] * image[j, xl:xr, yl:yr, :]
+            cropped = tf.image.resize(cropped, (image.shape[1], image.shape[2]))
+            crops.append(cropped)
+
+        return tf.stack(crops)
