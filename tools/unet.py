@@ -92,48 +92,40 @@ class MergeZoom(Layer):
         super(MergeZoom, self).build(input_shape)
 
     def call(self, inputs):
-        masks, images = inputs
-        masks = K.greater_equal(masks, self.threshold)
-        masks = K.cast(masks, 'float32')
-        zooms = []
+        mask, image = inputs
+        mask = K.greater_equal(mask, self.threshold)
+        mask = K.cast(mask, 'float32')
 
-        for j in range(self.batch_size):
-            x = K.sum(masks[j], axis=1)
-            y = K.sum(masks[j], axis=0)
-            xl = 0
-            xr = 0
-            i = 0
-            while K.equal(xl, 0):
-                if x[i] > 0:
-                    xl = i - 1
-                i += 1
-        
-            i = len(x) - 1
-            while K.equal(xr, 0):
-                if x[i] > 0:
-                    xr = i + 1
-                i -= 1
-        
-            yl = 0
-            yr = 0
-            i = 0
-            while K.equal(yl, 0):
-                if y[i] > 0:
-                    yl = i - 1
-                i += 1
+        x = K.sum(mask, axis=1)
+        y = K.sum(mask, axis=0)
+        xl = 0
+        xr = 0
+        i = 0
+        while K.equal(xl, 0):
+            if x[i] > 0:
+                xl = i - 1
+            i += 1
+    
+        i = len(x) - 1
+        while K.equal(xr, 0):
+            if x[i] > 0:
+                xr = i + 1
+            i -= 1
+    
+        yl = 0
+        yr = 0
+        i = 0
+        while K.equal(yl, 0):
+            if y[i] > 0:
+                yl = i - 1
+            i += 1
 
-            i = len(y) - 1
-            while K.equal(yr, 0):
-                if y[i] > 0:
-                    yr = i + 1
-                i -= 1
+        i = len(y) - 1
+        while K.equal(yr, 0):
+            if y[i] > 0:
+                yr = i + 1
+            i -= 1
 
-            cropped = masks[j][xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
-            cropped = smart_resize(cropped, (images.shape[1], images.shape[2]))
-            zooms.append(cropped)
-        
-        result = K.stack(zooms)
-        return result
-
-    def compute_output_shape(self, input_shape):
-        return input_shape
+        cropped = mask[xl:xr, yl:yr] * image[xl:xr, yl:yr]
+        cropped = smart_resize(cropped, (image.shape[1], image.shape[2]))
+        return cropped
