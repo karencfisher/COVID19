@@ -84,12 +84,16 @@ def get_dice_loss(epsilon=1e-7):
 ''' Layer to merge images/masks and zoom'''
 
 class MergeZoom(Layer):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, threshold=0.5, **kwargs):
+        self.threshold = threshold
+        super(MergeZoom, self).__init__(**kwargs)
 
-    def __call__(self, inputs):
+    def build(self, input_shape):
+        super(MergeZoom, self).build(input_shape)
+
+    def call(self, inputs):
         masks, images = inputs
-        masks = K.greater_equal(masks, 0.5)
+        masks = K.greater_equal(masks, self.threshold)
         masks = K.cast(masks, 'float32')
         zooms = []
 
@@ -128,5 +132,8 @@ class MergeZoom(Layer):
             cropped = cv2.resize(cropped.numpy(), (224, 224), interpolation=cv2.INTER_AREA)
             zooms.append(cropped)
         
-        zooms = K.stack(zooms)
-        return zooms
+        self.result = K.stack(zooms)
+        return self.result
+
+    def compute_output_shape(self, input_shape):
+        return K.int_shape(self.result)
