@@ -132,8 +132,5 @@ class MergeZoom(Layer):
             cropped = smart_resize(cropped, (images.shape[1], images.shape[2]))
             zooms.append(cropped)
         
-        self.result = K.stack(zooms)
-        return self.result
-
-    def compute_output_shape(self, input_shape):
-        return K.int_shape(self.result)
+        result = K.stack(zooms)
+        return result
