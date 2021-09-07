@@ -97,9 +97,9 @@ class MergeZoom(Layer):
         masks = K.cast(masks, 'float32')
         zooms = []
 
-        for j, mask in enumerate(masks):
-            x = K.sum(mask, axis=1)
-            y = K.sum(mask, axis=0)
+        for j in range(masks):
+            x = K.sum(masks[j], axis=1)
+            y = K.sum(masks[j], axis=0)
             xl = 0
             xr = 0
             i = 0
@@ -128,7 +128,7 @@ class MergeZoom(Layer):
                     yr = i + 1
                 i -= 1
 
-            cropped = mask[xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
+            cropped = masks[j][xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
             cropped = cv2.resize(cropped.numpy(), (224, 224), interpolation=cv2.INTER_AREA)
             zooms.append(cropped)
         
