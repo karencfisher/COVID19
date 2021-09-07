@@ -129,10 +129,9 @@ class MergeZoom(Layer):
                 i -= 1
 
             cropped = masks[j][xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
-            print(cropped.shape)
+            cropped = smart_resize(cropped, (images.shape[1], images.shape[2]))
             zooms.append(cropped)
         
-        zooms = smart_resize(zooms, (images.shape[1], images.shape[2]))
         self.result = K.stack(zooms)
         return self.result
 
