@@ -134,3 +134,6 @@ class MergeZoom(Layer):
         
         result = K.stack(zooms)
         return result
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
