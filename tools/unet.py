@@ -104,13 +104,13 @@ class MergeZoom(Layer):
             xl = 0
             xr = 0
             i = 0
-            while xl == 0:
+            while K.equal(xl, 0):
                 if x[i] > 0:
                     xl = i - 1
                 i += 1
         
             i = len(x) - 1
-            while xr == 0:
+            while K.equal(xr, 0):
                 if x[i] > 0:
                     xr = i + 1
                 i -= 1
@@ -118,13 +118,13 @@ class MergeZoom(Layer):
             yl = 0
             yr = 0
             i = 0
-            while yl == 0:
+            while K.equal(yl, 0):
                 if y[i] > 0:
                     yl = i - 1
                 i += 1
 
             i = len(y) - 1
-            while yr == 0:
+            while K.equal(yr, 0):
                 if y[i] > 0:
                     yr = i + 1
                 i -= 1
