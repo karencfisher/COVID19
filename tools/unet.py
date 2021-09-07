@@ -84,8 +84,9 @@ def get_dice_loss(epsilon=1e-7):
 ''' Layer to merge images/masks and zoom'''
 
 class MergeZoom(Layer):
-    def __init__(self, threshold=0.5, **kwargs):
+    def __init__(self, batch_size=8, threshold=0.5, **kwargs):
         self.threshold = threshold
+        self.batch_size = batch_size
         super(MergeZoom, self).__init__(**kwargs)
 
     def build(self, input_shape):
@@ -97,7 +98,7 @@ class MergeZoom(Layer):
         masks = K.cast(masks, 'float32')
         zooms = []
 
-        for j in range(masks.shape[0]):
+        for j in range(self.batch_size):
             x = K.sum(masks[j], axis=1)
             y = K.sum(masks[j], axis=0)
             xl = 0
