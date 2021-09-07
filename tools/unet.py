@@ -98,6 +98,8 @@ class MergeZoom(Layer):
 
         x = K.sum(mask, axis=1)
         y = K.sum(mask, axis=0)
+        print(x.shape, y.shape)
+        
         xl = 0
         xr = 0
         i = 0
