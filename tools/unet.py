@@ -1,6 +1,6 @@
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Input
-from tensorflow.keras.layers import Conv2DTranspose, Concatenate, Activation
+from tensorflow.keras.layers import Conv2DTranspose, Concatenate, Activation, Layer
 from tensorflow.keras import backend as K
 
 import cv2
@@ -83,45 +83,50 @@ def get_dice_loss(epsilon=1e-7):
 
 ''' Layer to merge images/masks and zoom'''
 
-def zoom(masks, images):
-    masks = K.greater_equal(masks, 0.5)
-    masks = K.cast(masks, 'float32')
-    zooms = []
+class MergeZoom(Layer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-    for j, mask in enumerate(masks):
-        x = K.sum(mask, axis=1)
-        y = K.sum(mask, axis=0)
-        xl = 0
-        xr = 0
-        i = 0
-        while xl == 0:
-            if x[i] > 0:
-                xl = i - 1
-            i += 1
-      
-        i = len(x) - 1
-        while xr == 0:
-            if x[i] > 0:
-                xr = i + 1
-            i -= 1
-      
-        yl = 0
-        yr = 0
-        i = 0
-        while yl == 0:
-            if y[i] > 0:
-                yl = i - 1
-            i += 1
+    def __call__(self, inputs):
+        masks, images = inputs
+        masks = K.greater_equal(masks, 0.5)
+        masks = K.cast(masks, 'float32')
+        zooms = []
 
-        i = len(y) - 1
-        while yr == 0:
-            if y[i] > 0:
-                yr = i + 1
-            i -= 1
+        for j, mask in enumerate(masks):
+            x = K.sum(mask, axis=1)
+            y = K.sum(mask, axis=0)
+            xl = 0
+            xr = 0
+            i = 0
+            while xl == 0:
+                if x[i] > 0:
+                    xl = i - 1
+                i += 1
+        
+            i = len(x) - 1
+            while xr == 0:
+                if x[i] > 0:
+                    xr = i + 1
+                i -= 1
+        
+            yl = 0
+            yr = 0
+            i = 0
+            while yl == 0:
+                if y[i] > 0:
+                    yl = i - 1
+                i += 1
 
-        cropped = mask[xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
-        cropped = cv2.resize(cropped.numpy(), (224, 224), interpolation=cv2.INTER_AREA)
-        zooms.append(cropped)
-    
-    zooms = K.stack(zooms)
-    return zooms
+            i = len(y) - 1
+            while yr == 0:
+                if y[i] > 0:
+                    yr = i + 1
+                i -= 1
+
+            cropped = mask[xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
+            cropped = cv2.resize(cropped.numpy(), (224, 224), interpolation=cv2.INTER_AREA)
+            zooms.append(cropped)
+        
+        zooms = K.stack(zooms)
+        return zooms
