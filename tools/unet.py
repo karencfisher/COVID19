@@ -4,8 +4,6 @@ from tensorflow.keras.layers import Conv2DTranspose, Concatenate, Activation, La
 from tensorflow.keras import backend as K
 from tensorflow.keras.preprocessing.image import smart_resize
 
-import cv2
-
 
 ''' Model building functions '''
 
