@@ -2,7 +2,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, MaxPool2D, BatchNormalization, Input
 from tensorflow.keras.layers import Conv2DTranspose, Concatenate, Activation, Layer
 from tensorflow.keras import backend as K
-from tensorflow.keras.preprocessing.image import smart_resize
+#from tensorflow.keras.preprocessing.image import smart_resize
 
 
 ''' Model building functions '''
@@ -96,10 +96,10 @@ class MergeZoom(Layer):
         mask = K.greater_equal(mask, self.threshold)
         mask = K.cast(mask, 'float32')
 
-        x = K.sum(mask, axis=1)
-        y = K.sum(mask, axis=0)
+        x = K.sum(mask, axis=2)
+        y = K.sum(mask, axis=1)
         print(x.shape, y.shape)
-        
+
         xl = 0
         xr = 0
         i = 0
@@ -129,5 +129,5 @@ class MergeZoom(Layer):
             i -= 1
 
         cropped = mask[xl:xr, yl:yr] * image[xl:xr, yl:yr]
-        cropped = smart_resize(cropped, (image.shape[1], image.shape[2]))
+        #cropped = smart_resize(cropped, (image.shape[1], image.shape[2]))
         return cropped
