@@ -95,7 +95,8 @@ class MergeZoom(Layer):
         masks, images = inputs
         masks = K.greater_equal(masks, self.threshold)
         masks = K.cast(masks, 'float32')
-        zooms = K.zeros(images.shape)
+        buffer_shape = [self.batch_size] + images.shape[1:]
+        zooms = K.zeros(buffer_shape)
 
         for j in range(self.batch_size):
             x = K.sum(masks[j], axis=1)
