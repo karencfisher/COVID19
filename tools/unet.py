@@ -95,7 +95,7 @@ class MergeZoom(Layer):
         masks, images = inputs
         masks = K.greater_equal(masks, self.threshold)
         masks = K.cast(masks, 'float32')
-        zooms = []
+        zooms = K.zeros(images.shape)
 
         for j in range(self.batch_size):
             x = K.sum(masks[j], axis=1)
@@ -129,10 +129,9 @@ class MergeZoom(Layer):
                 i -= 1
 
             cropped = masks[j][xl:xr, yl:yr] * images[j][xl:xr, yl:yr]
-            zooms.append(cropped)
+            zooms[j] = cropped
         
-        cropped = K.stack(zooms)
-        self.result = smart_resize(cropped, 
+        self.result = smart_resize(zooms, 
                                   [images.shape[1], images.shape[2]])
         return self.result
 
