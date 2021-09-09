@@ -100,35 +100,29 @@ class MergeZoom(Layer):
         x = K.sum(mask, axis=2)
         y = K.sum(mask, axis=1)
 
-        crops = []
-        for j in tf.range(self.batch_size):
-            xl = 0
-            xr = 0
-            i = 0
-            while K.equal(xl, 0):
-                print(x[j,i,0])
-                xl = tf.cond(x[j,i,0] > 0, lambda: i - 1, lambda: xl)
-                i += 1
-        
-            i = len(x) - 1
-            while K.equal(xr, 0):
-                xr = tf.cond(x[j,i,0] > 0, lambda: i + 1, lambda: xr)
-                i -= 1
-        
-            yl = 0
-            yr = 0
-            i = 0
-            while K.equal(yl, 0):
-                yl = tf.cond(y[j,i,0] > 0, lambda: i - 1, lambda: yl)
-                i += 1
+        xl, xr = self.find_edges(x)
+        yl, yr = self.find_edges(x)
 
-            i = len(y) - 1
-            while K.equal(yr, 0):
-                yr = tf.cond(y[j,i,0] > 0, lambda: i + 1, lambda: yr)
-                i -= 1
+        cropped = mask[:, xl:xr, yl:yr, :] * image[:, xl:xr, yl:yr, :]
+        cropped = tf.image.resize(cropped, 
+                                  (image.shape[1], image.shape[2]),
+                                  preserve_aspect_ratio=False)
+        return cropped
 
-            cropped = mask[j, xl:xr, yl:yr, :] * image[j, xl:xr, yl:yr, :]
-            cropped = tf.image.resize(cropped, (image.shape[1], image.shape[2]))
-            crops.append(cropped)
+    def find_edges(self, x):
+        xl = 0
+        xr = 0
+        i = 0
+        while K.equal(xl, 0):
+            xl = tf.cond(tf.reduce_any(x[:,i,0] > 0), lambda: i - 3, lambda: xl)
+            i += 1
+    
+        i = len(x) - 1
+        while K.equal(xr, 0):
+            xr = tf.cond(tf.reduce_any(x[:,i,0] > 0), lambda: i + 3, lambda: xr)
+            i -= 1
 
-        return tf.stack(crops)
+        xl = K.maximum(xl, 0)
+        xr = K.minimum(xr, len(x))
+
+        return xl, xr
