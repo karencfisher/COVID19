@@ -126,3 +126,9 @@ class MergeZoom(Layer):
         xr = K.minimum(xr, len(x))
 
         return xl, xr
+
+
+def thresh(x, threshold=0.5):
+    greater = K.greater_equal(x, threshold) #will return boolean values
+    greater = K.cast(greater, dtype=K.floatx()) #will convert bool to 0 and 1    
+    return greater 
