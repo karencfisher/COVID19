@@ -80,32 +80,48 @@ def get_dice_loss(epsilon=1e-7):
         return loss
     return dice_loss
 
+'''Threshold masks 
+
+   So pixels[i,j] ε {0, 1}
+'''
+
+def thresh(x, threshold=0.5):
+    greater = K.greater_equal(x, threshold) #will return boolean values
+    greater = K.cast(greater, dtype=K.floatx()) #will convert bool to 0 and 1    
+    return greater 
+
 
 ''' Layer to merge images/masks and zoom'''
 
 class MergeZoom(Layer):
-    def __init__(self, batch_size=8, threshold=0.5, **kwargs):
+    def __init__(self, threshold=0.5, **kwargs):
         self.threshold = threshold
-        self.batch_size = batch_size
         super(MergeZoom, self).__init__(**kwargs)
 
     def build(self, input_shape):
         super(MergeZoom, self).build(input_shape)
 
     def call(self, inputs):
+        image_shape = inputs[1].shape[1:]
+        cropped = tf.map_fn(self.crop_images, 
+                            inputs,
+                            fn_output_signature=tf.TensorSpec(image_shape))
+        return cropped
+
+    def crop_images(self, inputs):
         mask, image = inputs
         mask = K.greater_equal(mask, self.threshold)
         mask = K.cast(mask, 'float32')
 
-        x = K.sum(mask, axis=2)
+        x = K.sum(mask, axis=0)
         y = K.sum(mask, axis=1)
 
         xl, xr = self.find_edges(x)
         yl, yr = self.find_edges(x)
 
-        cropped = mask[:, xl:xr, yl:yr, :] * image[:, xl:xr, yl:yr, :]
+        cropped = mask[yl:yr, xl:xr, :] * image[yl:yr, xl:xr, :]
         cropped = tf.image.resize(cropped, 
-                                  (image.shape[1], image.shape[2]),
+                                  (image.shape[0], image.shape[1]),
                                   preserve_aspect_ratio=False)
         return cropped
 
@@ -114,21 +130,14 @@ class MergeZoom(Layer):
         xr = 0
         i = 0
         while K.equal(xl, 0):
-            xl = tf.cond(tf.reduce_any(x[:,i,0] > 0), lambda: i - 3, lambda: xl)
+            xl = tf.cond(x[i,0] > 0, lambda: i - 3, lambda: xl)
             i += 1
     
         i = len(x) - 1
         while K.equal(xr, 0):
-            xr = tf.cond(tf.reduce_any(x[:,i,0] > 0), lambda: i + 3, lambda: xr)
+            xr = tf.cond(x[i,0] > 0, lambda: i + 3, lambda: xr)
             i -= 1
 
         xl = K.maximum(xl, 0)
         xr = K.minimum(xr, len(x))
-
         return xl, xr
-
-
-def thresh(x, threshold=0.5):
-    greater = K.greater_equal(x, threshold) #will return boolean values
-    greater = K.cast(greater, dtype=K.floatx()) #will convert bool to 0 and 1    
-    return greater 
