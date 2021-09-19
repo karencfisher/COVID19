@@ -98,6 +98,11 @@ class MergeZoom(Layer):
         self.threshold = threshold
         super(MergeZoom, self).__init__(**kwargs)
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({'threshold': self.threshold})
+        return config
+
     def build(self, input_shape):
         super(MergeZoom, self).build(input_shape)
 
@@ -115,7 +120,7 @@ class MergeZoom(Layer):
 
         if tf.reduce_all(mask == 0):
             return image
-            
+
         x = K.sum(mask, axis=0)
         y = K.sum(mask, axis=1)
 
