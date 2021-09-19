@@ -113,6 +113,9 @@ class MergeZoom(Layer):
         mask = K.greater_equal(mask, self.threshold)
         mask = K.cast(mask, 'float32')
 
+        if tf.reduce_all(mask == 0):
+            return image
+            
         x = K.sum(mask, axis=0)
         y = K.sum(mask, axis=1)
 
