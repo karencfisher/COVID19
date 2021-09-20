@@ -121,8 +121,10 @@ class MergeZoom(Layer):
         if tf.reduce_all(mask == 0):
             return image
 
-        x = K.sum(mask, axis=0)
-        y = K.sum(mask, axis=1)
+        x = tf.reduce_any(mask != 0, axis=0)
+        x = tf.cast(x, tf.int8)
+        y = tf.reduce_any(mask != 0, axis=1)
+        y = tf.cast(y, tf.int8)
 
         xl, xr = self.find_edges(x)
         yl, yr = self.find_edges(x)
@@ -138,12 +140,12 @@ class MergeZoom(Layer):
         xr = 0
         i = 0
         while K.equal(xl, 0):
-            xl = tf.cond(x[i,0] > 0, lambda: i - 3, lambda: xl)
+            xl = tf.cond(x[i,0] > 0, lambda: i - 10, lambda: xl)
             i += 1
     
         i = len(x) - 1
         while K.equal(xr, 0):
-            xr = tf.cond(x[i,0] > 0, lambda: i + 3, lambda: xr)
+            xr = tf.cond(x[i,0] > 0, lambda: i + 10, lambda: xr)
             i -= 1
 
         xl = K.maximum(xl, 0)
