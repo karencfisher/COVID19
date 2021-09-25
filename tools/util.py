@@ -193,12 +193,12 @@ def preprocess_images(img, preprocess=None):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = gray.astype(np.uint16)
     eq = clahe.apply(gray)
-    #eq = cv2.cvtColor(eq, cv2.COLOR_GRAY2BGR)
+    eq = cv2.cvtColor(eq, cv2.COLOR_GRAY2BGR)
     eq = eq.astype(np.float32)
 
     if preprocess is not None:
         output = preprocess(eq)
     else:
-        output = eq / 255.
+        output = eq / np.max(eq)
 
     return output
