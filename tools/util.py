@@ -186,3 +186,19 @@ def grad_cam(model, image, cls, layer_name, test=False):
     output_image = cv2.addWeighted(cv2.cvtColor(image[0].astype('uint8'), cv2.COLOR_RGB2BGR),
                                    0.5, cam, 1, 0)
     return output_image
+
+
+def preprocess_images(img, preprocess=None):
+    clahe = cv2.createCLAHE(clipLimit=0.01, tileGridSize=(8,8)) 
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    gray = gray.astype(np.uint16)
+    eq = clahe.apply(gray)
+    eq = cv2.cvtColor(eq, cv2.COLOR_GRAY2RGB)
+    eq = eq.astype(np.float32)
+
+    if preprocess is not None:
+        output = preprocess(eq)
+    else:
+        output = eq / 255.
+
+    return output
