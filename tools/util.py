@@ -11,7 +11,6 @@ from tensorflow import GradientTape
 from tensorflow.keras.models import Model
 from tensorflow import cast, reduce_mean
 from sklearn.metrics import roc_auc_score, roc_curve
-from skimage.exposure import equalize_adapthist
 
 
 def Weighted_Loss(classes, epsilon=1e-7):
@@ -187,14 +186,3 @@ def grad_cam(model, image, cls, layer_name, test=False):
     output_image = cv2.addWeighted(cv2.cvtColor(image[0].astype('uint8'), cv2.COLOR_RGB2BGR),
                                    0.5, cam, 1, 0)
     return output_image
-
-
-def preprocess_images(img, preprocess=None):
-    image_eq = equalize_adapthist(img)
-
-    if preprocess is not None:
-        output = preprocess(image_eq)
-    else:
-        output = image_eq / np.max(image_eq)
-
-    return output
